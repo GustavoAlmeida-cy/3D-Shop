@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.bg-gradient {
+  @apply bg-gradient-to-br from-rose-400 to-fuchsia-700;
+}
+
 /* Scrollbar customizada para Webkit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
   width: 8px; /* largura da scrollbar vertical */
