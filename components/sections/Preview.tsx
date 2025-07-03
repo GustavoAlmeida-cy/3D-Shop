@@ -70,7 +70,7 @@ const Preview = ({ selectedProduct }: PreviewProps) => {
 
         const model = gltf.scene;
         model.scale.set(1, 1, 1);
-        model.position.set(0, 0, -2);
+        model.position.set(0, 12, -2);
         scene.add(model);
 
         modelRef.current = model;
@@ -81,11 +81,37 @@ const Preview = ({ selectedProduct }: PreviewProps) => {
 
     camera.position.z = 5;
 
-    renderer.setAnimationLoop(animate);
+    const gravity = 0.002;
+    const bounceFactor = 0.3;
+    const groundY = 0;
+
+    let velocityY = 0;
+    let isBouncing = false;
 
     function animate() {
+      requestAnimationFrame(animate);
+
+      if (modelRef.current) {
+        velocityY -= gravity;
+        modelRef.current.position.y += velocityY;
+
+        if (modelRef.current.position.y <= groundY) {
+          modelRef.current.position.y = groundY;
+          velocityY *= -bounceFactor;
+          isBouncing = true;
+        } else {
+          isBouncing = false;
+        }
+
+        if (Math.abs(velocityY) < 0.01 && isBouncing) {
+          velocityY = 0;
+        }
+      }
+
       renderer.render(scene, camera);
     }
+
+    animate();
 
     // Função de limpeza: será executada quando o componente for desmontado
     // ou antes da próxima execução do useEffect (no StrictMode)
