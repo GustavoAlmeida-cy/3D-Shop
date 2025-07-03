@@ -1,6 +1,6 @@
-import { object } from "framer-motion/client";
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/Addons.js";
 
 const Preview = () => {
   const mountRef = useRef<HTMLDivElement | null>(null);
@@ -10,16 +10,28 @@ const Preview = () => {
 
     if (!mount) return;
 
+    const loader = new GLTFLoader();
+
     while (mount.firstChild) {
       mount.removeChild(mount.firstChild);
     }
 
     const scene = new THREE.Scene();
-    const sceneWidth = window.innerWidth;
-    const sceneHeight = window.innerHeight;
+    const containerWidth = mount.clientWidth;
+    const containerHeight = mount.clientHeight;
 
-    const renderer = new THREE.WebGLRenderer();
+    const sceneWidth = containerWidth <= 1536 ? containerWidth : 1536;
+    const sceneHeight =
+      window.innerWidth <= window.innerHeight
+        ? window.innerHeight
+        : window.innerHeight;
+
+    scene.rotation.x = THREE.MathUtils.degToRad(60);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(sceneWidth, sceneHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setClearColor(0x000000, 0);
 
     mount.appendChild(renderer.domElement);
 
@@ -30,33 +42,33 @@ const Preview = () => {
       1000
     );
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+    scene.add(ambientLight);
 
-    for (let i = 0; i < 10; i++) {
-      const cube = new THREE.Mesh(geometry, material);
+    const directionalLightTop = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLightTop.position.set(5, 10, 7.5);
+    scene.add(directionalLightTop);
 
-      cube.position.set(
-        (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 10
-      );
+    const directionalLightLeft = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLightLeft.position.set(-10, 5, 0);
+    scene.add(directionalLightLeft);
 
-      scene.add(cube);
-    }
+    const directionalLightRight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLightRight.position.set(10, 5, 0);
+    scene.add(directionalLightRight);
 
-    camera.position.z = 6;
+    loader.load("/assets/keyboard.glb", (gltf) => {
+      const model = gltf.scene;
+      model.scale.set(1, 1, 1);
+      model.position.set(0, 0, -2);
+      scene.add(model);
+    });
+
+    camera.position.z = 5;
 
     renderer.setAnimationLoop(animate);
 
     function animate() {
-      scene.traverse((object) => {
-        if (object instanceof THREE.Mesh) {
-          object.rotation.x += 0.01;
-          object.rotation.y += 0.01;
-        }
-      });
-
       renderer.render(scene, camera);
     }
 
@@ -78,7 +90,7 @@ const Preview = () => {
     <div
       ref={mountRef}
       id="preview"
-      className="w-full h-[400px] md:h-[80vh] pt-8 md:pt-0"
+      className="w-full h-[400px] md:h-[800px] pt-8 md:pt-0"
     />
   );
 };
