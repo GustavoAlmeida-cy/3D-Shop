@@ -1,4 +1,6 @@
-import React, { useEffect, useRef } from "react";
+"use client";
+
+import React, { useEffect, useRef, useCallback } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { ProductType } from "./Catalog";
@@ -10,34 +12,27 @@ interface PreviewProps {
 const Preview = ({ selectedProduct }: PreviewProps) => {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const modelRef = useRef<THREE.Object3D | null>(null);
+  const isMouseDownRef = useRef(false);
+  const velocityYRef = useRef(0);
+  const requestIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     const mount = mountRef.current;
-
     if (!mount || !selectedProduct) return;
 
     const loader = new GLTFLoader();
-
-    while (mount.firstChild) {
-      mount.removeChild(mount.firstChild);
-    }
+    while (mount.firstChild) mount.removeChild(mount.firstChild);
 
     const scene = new THREE.Scene();
-    const containerWidth = mount.clientWidth;
-
-    const sceneWidth = containerWidth <= 1536 ? containerWidth : 1536;
-    const sceneHeight =
-      window.innerWidth <= window.innerHeight
-        ? window.innerHeight
-        : window.innerHeight;
-
     scene.rotation.x = THREE.MathUtils.degToRad(60);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const containerWidth = mount.clientWidth;
+    const sceneWidth = Math.min(containerWidth, 1536);
+    const sceneHeight = window.innerHeight;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(sceneWidth, sceneHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setClearColor(0x000000, 0);
-
     mount.appendChild(renderer.domElement);
 
     const camera = new THREE.PerspectiveCamera(
@@ -46,84 +41,99 @@ const Preview = ({ selectedProduct }: PreviewProps) => {
       0.1,
       1000
     );
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
-    scene.add(ambientLight);
-
-    const directionalLightTop = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLightTop.position.set(5, 10, 7.5);
-    scene.add(directionalLightTop);
-
-    const directionalLightLeft = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLightLeft.position.set(-10, 5, 0);
-    scene.add(directionalLightLeft);
-
-    const directionalLightRight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLightRight.position.set(10, 5, 0);
-    scene.add(directionalLightRight);
-
-    const loadModel = (modelSrc: string) => {
-      loader.load(modelSrc, (gltf) => {
-        if (modelRef.current) {
-          scene.remove(modelRef.current);
-        }
-
-        const model = gltf.scene;
-        model.scale.set(1, 1, 1);
-        model.position.set(0, 12, -2);
-        scene.add(model);
-
-        modelRef.current = model;
-      });
-    };
-
-    loadModel(selectedProduct.modelSrc);
-
     camera.position.z = 5;
 
+    // Luzes
+    scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+    const lights = [
+      new THREE.DirectionalLight(0xffffff, 1),
+      new THREE.DirectionalLight(0xffffff, 1),
+      new THREE.DirectionalLight(0xffffff, 1),
+    ];
+    lights[0].position.set(5, 10, 7.5);
+    lights[1].position.set(-10, 5, 0);
+    lights[2].position.set(10, 5, 0);
+    lights.forEach((light) => scene.add(light));
+
+    // Carregamento do modelo
+    loader.load(selectedProduct.modelSrc, (gltf) => {
+      if (modelRef.current) scene.remove(modelRef.current);
+      const model = gltf.scene;
+      model.scale.set(1, 1, 1);
+      model.position.set(0, 12, -2);
+      scene.add(model);
+      modelRef.current = model;
+    });
+
+    // Física do pulo
     const gravity = 0.002;
     const bounceFactor = 0.3;
     const groundY = 0;
 
-    let velocityY = 0;
-    let isBouncing = false;
+    const animate = () => {
+      requestIdRef.current = requestAnimationFrame(animate);
+      const model = modelRef.current;
+      if (model) {
+        velocityYRef.current -= gravity;
+        model.position.y += velocityYRef.current;
 
-    function animate() {
-      requestAnimationFrame(animate);
-
-      if (modelRef.current) {
-        velocityY -= gravity;
-        modelRef.current.position.y += velocityY;
-
-        if (modelRef.current.position.y <= groundY) {
-          modelRef.current.position.y = groundY;
-          velocityY *= -bounceFactor;
-          isBouncing = true;
-        } else {
-          isBouncing = false;
-        }
-
-        if (Math.abs(velocityY) < 0.01 && isBouncing) {
-          velocityY = 0;
+        if (model.position.y <= groundY) {
+          model.position.y = groundY;
+          velocityYRef.current *= -bounceFactor;
+          if (Math.abs(velocityYRef.current) < 0.01) velocityYRef.current = 0;
         }
       }
-
       renderer.render(scene, camera);
-    }
-
+    };
     animate();
 
-    // Função de limpeza: será executada quando o componente for desmontado
-    // ou antes da próxima execução do useEffect (no StrictMode)
+    // Eventos de interação
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isMouseDownRef.current || !modelRef.current) return;
+      const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      modelRef.current.rotation.y = mouseX * Math.PI;
+    };
+
+    const handleMouseDown = () => {
+      isMouseDownRef.current = true;
+    };
+
+    const handleInteractionEnd = () => {
+      isMouseDownRef.current = false;
+      const animateBack = () => {
+        const model = modelRef.current;
+        if (!model) return;
+
+        const diff = model.rotation.y;
+        if (Math.abs(diff) > 0.01) {
+          model.rotation.y -= diff * 0.1;
+          requestAnimationFrame(animateBack);
+        } else {
+          model.rotation.y = 0;
+        }
+      };
+      requestAnimationFrame(animateBack);
+    };
+
+    // Adiciona eventos
+    mount.addEventListener("mousemove", handleMouseMove);
+    mount.addEventListener("mousedown", handleMouseDown);
+    mount.addEventListener("mouseup", handleInteractionEnd);
+    mount.addEventListener("mouseleave", handleInteractionEnd);
+
+    // Cleanup
     return () => {
-      // Pare a animação para evitar vazamentos de memória
-      renderer.setAnimationLoop(null);
-      // Remova o elemento DOM do renderer
-      if (mount.contains(renderer.domElement)) {
+      if (requestIdRef.current) cancelAnimationFrame(requestIdRef.current);
+      renderer.dispose();
+
+      if (renderer.domElement && mount.contains(renderer.domElement)) {
         mount.removeChild(renderer.domElement);
       }
 
-      renderer.dispose();
+      mount.removeEventListener("mousemove", handleMouseMove);
+      mount.removeEventListener("mousedown", handleMouseDown);
+      mount.removeEventListener("mouseup", handleInteractionEnd);
+      mount.removeEventListener("mouseleave", handleInteractionEnd);
     };
   }, [selectedProduct]);
 
