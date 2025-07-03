@@ -138,11 +138,7 @@ const Preview = ({ selectedProduct }: PreviewProps) => {
   }, [selectedProduct]);
 
   return (
-    <div
-      ref={mountRef}
-      id="preview"
-      className="w-full h-[400px] md:h-[800px] pt-8 md:pt-0"
-    />
+    <div ref={mountRef} id="preview" className="w-full h-[400px] p-2 mt-2" />
   );
 };
 

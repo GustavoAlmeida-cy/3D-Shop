@@ -18,7 +18,7 @@ const Logo = ({ size = "sm" }: LogoProps) => {
           width={iconSize}
           height={iconSize}
         />
-        <h1 className={`text-slate-400 ${size === "sm" ? "text-sm" : ""}`}>
+        <h1 className={`text-slate-200 ${size === "sm" ? "text-sm" : ""}`}>
           Keyboard
         </h1>
       </Link>
