@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import React, { useEffect } from "react";
-import { MdKeyboardDoubleArrowDown } from "react-icons/md";
 import TypingText from "@/components/ui/TypingText";
 import Image from "next/image";
 import ScrollButton from "../ui/ScrollButton";

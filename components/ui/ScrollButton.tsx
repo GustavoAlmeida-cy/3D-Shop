@@ -29,7 +29,7 @@ export default function ScrollButton() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.3 }}
-          className="absolute bottom-32 left-1/3 md:left-1/2 transform -translate-x-1/2"
+          className="absolute bottom-32 right-8 transform -translate-x-1/2"
         >
           <Link
             href="#preview"
