@@ -6,23 +6,29 @@ interface LogoProps {
   size?: "sm" | "lg";
 }
 
-const Logo = ({ size = "sm" }: LogoProps) => {
-  const iconSize = size === "lg" ? 35 : 25;
+const Logo: React.FC<LogoProps> = ({ size = "sm" }) => {
+  const isLarge = size === "lg";
+  const iconSize = isLarge ? 35 : 25;
+  const textSize = isLarge ? "text-base" : "text-sm";
 
   return (
-    <div className="flex flex-row gap-2 items-center select-none">
-      <Link href="/" className="flex items-center gap-2">
-        <Image
-          src="/assets/logo.png"
-          alt="Logo"
-          width={iconSize}
-          height={iconSize}
-        />
-        <h1 className={`text-slate-200 ${size === "sm" ? "text-sm" : ""}`}>
-          Keyboard
-        </h1>
-      </Link>
-    </div>
+    <Link
+      href="/"
+      className="flex items-center gap-2 select-none group"
+      aria-label="Go to homepage"
+    >
+      <Image
+        src="/assets/logo.png"
+        alt="3D Shop Logo"
+        width={iconSize}
+        height={iconSize}
+        priority
+        className="transition-opacity duration-300 group-hover:opacity-90"
+      />
+      <span className={`text-slate-200 font-semibold ${textSize}`}>
+        Keyboard
+      </span>
+    </Link>
   );
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { ProductType } from "./Catalog";
@@ -9,13 +9,13 @@ interface PreviewProps {
   selectedProduct: ProductType;
 }
 
-const Preview = ({ selectedProduct }: PreviewProps) => {
+const Preview: React.FC<PreviewProps> = ({ selectedProduct }) => {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const modelRef = useRef<THREE.Object3D | null>(null);
   const isMouseDownRef = useRef(false);
   const isTouchDownRef = useRef(false);
-  const touchStartXRef = useRef<number>(0);
-  const touchStartRotationRef = useRef<number>(0);
+  const touchStartXRef = useRef(0);
+  const touchStartRotationRef = useRef(0);
   const velocityYRef = useRef(0);
   const requestIdRef = useRef<number | null>(null);
 
@@ -23,44 +23,41 @@ const Preview = ({ selectedProduct }: PreviewProps) => {
     const mount = mountRef.current;
     if (!mount || !selectedProduct) return;
 
-    const loader = new GLTFLoader();
+    // Limpa o container
     while (mount.firstChild) mount.removeChild(mount.firstChild);
 
+    // Setup cena, câmera e renderizador
     const scene = new THREE.Scene();
     scene.rotation.x = THREE.MathUtils.degToRad(60);
 
-    const containerWidth = mount.clientWidth;
-    const sceneWidth = Math.min(containerWidth, 1536);
-    const sceneHeight = window.innerHeight;
+    const width = Math.min(mount.clientWidth, 1536);
+    const height = window.innerHeight;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(sceneWidth, sceneHeight);
+    renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
     mount.appendChild(renderer.domElement);
 
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      sceneWidth / sceneHeight,
-      0.1,
-      1000
-    );
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     camera.position.z = 5;
 
-    // Luzes
+    // Iluminação
     scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-    const lights = [
+    const directionalLights = [
       new THREE.DirectionalLight(0xffffff, 1),
       new THREE.DirectionalLight(0xffffff, 1),
       new THREE.DirectionalLight(0xffffff, 1),
     ];
-    lights[0].position.set(5, 10, 7.5);
-    lights[1].position.set(-10, 5, 0);
-    lights[2].position.set(10, 5, 0);
-    lights.forEach((light) => scene.add(light));
+    directionalLights[0].position.set(5, 10, 7.5);
+    directionalLights[1].position.set(-10, 5, 0);
+    directionalLights[2].position.set(10, 5, 0);
+    directionalLights.forEach((light) => scene.add(light));
 
-    // Carregamento do modelo
+    // Carregamento do modelo GLTF
+    const loader = new GLTFLoader();
     loader.load(selectedProduct.modelSrc, (gltf) => {
       if (modelRef.current) scene.remove(modelRef.current);
+
       const model = gltf.scene;
       model.scale.set(1, 1, 1);
       model.position.set(0, 12, -2);
@@ -75,43 +72,42 @@ const Preview = ({ selectedProduct }: PreviewProps) => {
 
     const animate = () => {
       requestIdRef.current = requestAnimationFrame(animate);
-      const model = modelRef.current;
-      if (model) {
-        velocityYRef.current -= gravity;
-        model.position.y += velocityYRef.current;
 
-        if (model.position.y <= groundY) {
-          model.position.y = groundY;
+      if (modelRef.current) {
+        velocityYRef.current -= gravity;
+        modelRef.current.position.y += velocityYRef.current;
+
+        if (modelRef.current.position.y <= groundY) {
+          modelRef.current.position.y = groundY;
           velocityYRef.current *= -bounceFactor;
           if (Math.abs(velocityYRef.current) < 0.01) velocityYRef.current = 0;
         }
       }
+
       renderer.render(scene, camera);
     };
+
     animate();
 
-    // Eventos de interação
+    // Manipuladores de interação
     const handleMouseMove = (e: MouseEvent) => {
       if (!isMouseDownRef.current || !modelRef.current) return;
       const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
       modelRef.current.rotation.y = mouseX * Math.PI;
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (modelRef.current && isTouchDownRef.current) {
-        const touchX = e.touches[0].clientX;
-        const deltaX = touchX - touchStartXRef.current;
-        modelRef.current.rotation.y =
-          touchStartRotationRef.current + deltaX * 0.01;
-      }
+    const handleTouchStart = (e: TouchEvent) => {
+      if (!modelRef.current) return;
+      isTouchDownRef.current = true;
+      touchStartXRef.current = e.touches[0].clientX;
+      touchStartRotationRef.current = modelRef.current.rotation.y;
     };
 
-    const handleTouchStart = (e: TouchEvent) => {
-      if (modelRef.current) {
-        isTouchDownRef.current = true;
-        touchStartXRef.current = e.touches[0].clientX;
-        touchStartRotationRef.current = modelRef.current.rotation.y;
-      }
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isTouchDownRef.current || !modelRef.current) return;
+      const deltaX = e.touches[0].clientX - touchStartXRef.current;
+      modelRef.current.rotation.y =
+        touchStartRotationRef.current + deltaX * 0.01;
     };
 
     const handleTouchEnd = () => {
@@ -124,22 +120,23 @@ const Preview = ({ selectedProduct }: PreviewProps) => {
 
     const handleInteractionEnd = () => {
       isMouseDownRef.current = false;
-      const animateBack = () => {
-        const model = modelRef.current;
-        if (!model) return;
 
-        const diff = model.rotation.y;
+      const animateBack = () => {
+        if (!modelRef.current) return;
+
+        const diff = modelRef.current.rotation.y;
         if (Math.abs(diff) > 0.01) {
-          model.rotation.y -= diff * 0.1;
+          modelRef.current.rotation.y -= diff * 0.1;
           requestAnimationFrame(animateBack);
         } else {
-          model.rotation.y = 0;
+          modelRef.current.rotation.y = 0;
         }
       };
+
       requestAnimationFrame(animateBack);
     };
 
-    // Adiciona eventos
+    // Eventos
     mount.addEventListener("mousemove", handleMouseMove);
     mount.addEventListener("mousedown", handleMouseDown);
     mount.addEventListener("mouseup", handleInteractionEnd);
@@ -170,7 +167,13 @@ const Preview = ({ selectedProduct }: PreviewProps) => {
   }, [selectedProduct]);
 
   return (
-    <div ref={mountRef} id="preview" className="w-full h-[400px] p-2 mt-2" />
+    <div
+      ref={mountRef}
+      id="preview"
+      className="w-full h-[400px] p-2 mt-2"
+      lang="en"
+      aria-label="3D model preview of selected product"
+    />
   );
 };
 

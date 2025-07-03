@@ -6,37 +6,45 @@ import Link from "next/link";
 import { FaCartShopping } from "react-icons/fa6";
 import { useCart } from "./Cart";
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
   const { toggleCart } = useCart();
 
   return (
-    <div className="max-w-5xl flex justify-between items-center p-8 mx-auto">
+    <nav
+      className="max-w-5xl flex justify-between items-center p-8 mx-auto"
+      aria-label="Primary navigation"
+    >
       <Logo size="lg" />
-      <div className="flex flex-row gap-8 items-center">
+
+      <div className="hidden sm:flex flex-row gap-8 items-center">
         <Link
           href="#catalog"
-          className="hidden sm:block font-semibold text-sm text-slate-400"
+          className="font-semibold text-sm text-slate-400 hover:text-slate-200 transition"
         >
           Catalog
         </Link>
         <Link
           href="#features"
-          className="hidden sm:block font-semibold text-sm text-slate-400"
+          className="font-semibold text-sm text-slate-400 hover:text-slate-200 transition"
         >
           Features
         </Link>
         <Link
           href="#reviews"
-          className="hidden sm:block font-semibold text-sm text-slate-400"
+          className="font-semibold text-sm text-slate-400 hover:text-slate-200 transition"
         >
           Reviews
         </Link>
       </div>
-      <FaCartShopping
-        className="w-6 h-6 text-slate-400 cursor cursor-pointer"
+
+      <button
         onClick={toggleCart}
-      />
-    </div>
+        aria-label="Toggle shopping cart"
+        className="text-slate-400 hover:text-slate-200 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stone-400 rounded"
+      >
+        <FaCartShopping className="w-6 h-6" />
+      </button>
+    </nav>
   );
 };
 

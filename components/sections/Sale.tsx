@@ -3,11 +3,9 @@
 import { a, easings, useSpring } from "@react-spring/three";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { useInView } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 interface ModelProps {
   url: string;
@@ -19,6 +17,7 @@ interface ModelProps {
 
 const Model = ({ url, initial, final, rotation, delay = 200 }: ModelProps) => {
   const gltf = useLoader(GLTFLoader, url);
+  const model = useMemo(() => gltf.scene.clone(), [gltf.scene]);
 
   const { position } = useSpring({
     from: { position: initial },
@@ -27,8 +26,6 @@ const Model = ({ url, initial, final, rotation, delay = 200 }: ModelProps) => {
     delay,
   });
 
-  const model = useMemo(() => gltf.scene.clone(), [gltf.scene]);
-
   return (
     <a.group position={position} rotation={rotation} scale={[0.5, 0.5, 0.5]}>
       <primitive object={model} />
@@ -36,8 +33,8 @@ const Model = ({ url, initial, final, rotation, delay = 200 }: ModelProps) => {
   );
 };
 
-const Sale = () => {
-  const mountRef = useRef(null);
+const Sale: React.FC = () => {
+  const mountRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(mountRef, { once: true });
 
   const [isMobile, setIsMobile] = useState(false);
@@ -55,7 +52,7 @@ const Sale = () => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  });
+  }, []);
 
   const leftInitial: [number, number, number] = [-2, 0, 0];
   const rightInitial: [number, number, number] = [2, 0, 0];
@@ -72,11 +69,12 @@ const Sale = () => {
   ];
 
   return (
-    <div className="flex flex-col items-center container gap-8 pt-32 mx-auto relative">
-      <div
-        ref={mountRef}
-        className="absolute w-full h-screen lg:h-[150vh] top-0 md:top-[-60vh] left-0"
-      >
+    <section
+      ref={mountRef}
+      className="flex flex-col items-center container gap-8 pt-32 mx-auto relative"
+      aria-label="Limited collection for sale"
+    >
+      <div className="absolute w-full h-screen lg:h-[150vh] top-0 md:top-[-60vh] left-0 pointer-events-none">
         <Canvas
           camera={{ position: [0, 0, 5], fov: 75 }}
           className="w-full h-full"
@@ -119,7 +117,7 @@ const Sale = () => {
       >
         Buy keyboard
       </Link>
-    </div>
+    </section>
   );
 };
 

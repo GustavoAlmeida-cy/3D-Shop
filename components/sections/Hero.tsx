@@ -1,19 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect } from "react";
-import TypingText from "@/components/ui/TypingText";
 import Image from "next/image";
+import React from "react";
+import TypingText from "@/components/ui/TypingText";
 import ScrollButton from "../ui/ScrollButton";
 
-const Hero = () => {
+const Hero: React.FC = () => {
   return (
-    <div
+    <section
       id="hero"
-      className="relative h-screen max-w-[1024px] mx-auto flex flex-col p-4 pt-8 lg:pt-32 md:p-16"
+      className="relative h-screen max-w-[1024px] mx-auto flex flex-col p-8 lg:pt-32 md:p-16"
+      aria-label="Hero section"
     >
-      <div className="flex flex-col md:flex-row items-center  relative">
-        <div className="w-full h-full md:w-1/2 flex flex-col gap-8 z-10 bg-gradient-to-r from-stone-950 via-stone-950 to-transparent">
+      <div className="flex flex-col md:flex-row items-center relative">
+        <div className="w-full md:w-1/2 flex flex-col gap-8 z-10 bg-gradient-to-r from-stone-950 via-stone-950 to-transparent">
           <div>
             <TypingText
               text="Your keyboard"
@@ -25,21 +26,23 @@ const Hero = () => {
             />
           </div>
 
-          <p className="text-slate-400 font-semibold">
+          <p className="text-slate-400 font-semibold max-w-md">
             Discover a keyboard designed for both style and functionality,
             providing unmatched comfort and efficiency for your everyday tasks.
           </p>
 
-          <div className="flex flex-row gap-6">
+          <div className="flex gap-6">
             <Link
               href="#preview"
-              className="w-36 flex  justify-center py-3 rounded-xl text-xs bg-gradient"
+              className="w-36 flex justify-center py-3 rounded-xl text-xs bg-gradient hover:brightness-110 transition"
+              aria-label="Buy keyboard"
             >
               Buy keyboard
             </Link>
             <Link
               href="#features"
-              className="w-36 flex justify-center py-3 rounded-xl text-xs border-[1px] border-white"
+              className="w-36 flex justify-center py-3 rounded-xl text-xs border border-white hover:bg-white/10 transition"
+              aria-label="See more features"
             >
               See more
             </Link>
@@ -48,17 +51,17 @@ const Hero = () => {
 
         <Image
           src="/assets/hero.png"
-          alt="hero image"
+          alt="Keyboard hero image"
           width={700}
           height={400}
           unoptimized={true}
-          className="md:absolute left-1/4 top-4 mt-16 md:mt-0"
+          className="md:absolute left-1/4 top-4 mt-16 md:mt-0 object-contain"
           priority
         />
       </div>
 
       <ScrollButton />
-    </div>
+    </section>
   );
 };
 

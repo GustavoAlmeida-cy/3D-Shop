@@ -4,7 +4,14 @@ import React from "react";
 import Marquee from "react-fast-marquee";
 import ReviewCard from "../ui/ReviewCard";
 
-const reviews = [
+type Review = {
+  name: string;
+  imgSrc: string;
+  text: string;
+  stars: number;
+};
+
+const reviews: Review[] = [
   {
     name: "Bob S.",
     imgSrc: "/assets/reviews/rev1.jpg",
@@ -55,17 +62,20 @@ const reviews = [
   },
 ];
 
-const Reviews = () => {
+const Reviews: React.FC = () => {
   return (
-    <div id="reviews" className="container mx-auto my-32 pt-8">
-      <h2 className="text-2xl font-semibold pl-4 md:pl-16 pb-16">
-        <span className="animate-pulse">/ </span>
-        Reviews
+    <section
+      id="reviews"
+      className="container mx-auto my-32 pt-8 px-4 md:px-16"
+      aria-label="Customer reviews"
+    >
+      <h2 className="text-2xl font-semibold pb-16">
+        <span className="animate-pulse">/ </span>Reviews
       </h2>
-      <Marquee speed={25}>
-        {reviews.map((review, index) => (
+      <Marquee speed={25} pauseOnHover gradient={false}>
+        {reviews.map((review) => (
           <ReviewCard
-            key={index}
+            key={review.name}
             name={review.name}
             imgSrc={review.imgSrc}
             text={review.text}
@@ -73,7 +83,7 @@ const Reviews = () => {
           />
         ))}
       </Marquee>
-    </div>
+    </section>
   );
 };
 

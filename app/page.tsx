@@ -1,3 +1,4 @@
+// app/page.tsx
 import Cart from "@/components/sections/Cart";
 import Features from "@/components/sections/Features";
 import Footer from "@/components/sections/Footer";
@@ -10,18 +11,20 @@ import { Toaster } from "react-hot-toast";
 
 export default function Home() {
   return (
-    <div className="text-slate-100">
-      <Toaster />
+    <main className="text-slate-100">
+      <Toaster position="top-right" reverseOrder={false} />
+
       <Cart />
       <Navbar />
       <Hero />
       <Products />
       <Features />
       <Reviews />
-      <div className="bg-stone-800">
+
+      <section className="bg-stone-800">
         <Sale />
         <Footer />
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

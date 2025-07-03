@@ -1,7 +1,15 @@
 import React from "react";
 import ProductCard from "@/components/ui/ProductCard";
 
-const products = [
+export type ProductType = {
+  id: string;
+  imgSrc: string;
+  title: string;
+  price: number;
+  modelSrc: string;
+};
+
+const products: ProductType[] = [
   {
     id: "1",
     imgSrc: "/assets/keyboard1.png",
@@ -25,30 +33,24 @@ const products = [
   },
 ];
 
-export type ProductType = {
-  id: string;
-  imgSrc: string;
-  title: string;
-  price: number;
-  modelSrc: string;
-};
-
 interface CatalogProps {
   selectedProduct: ProductType;
   onProductClick: (product: ProductType) => void;
 }
 
-const Catalog = ({ selectedProduct, onProductClick }: CatalogProps) => {
+const Catalog: React.FC<CatalogProps> = ({
+  selectedProduct,
+  onProductClick,
+}) => {
   return (
-    <div id="catalog" className="max-w-5xl mx-auto">
-      <h2 className="text-2xl font-semibold pl-4 md:pl-16 pb-16">
-        <span className="animate-pulse">/ </span>
-        Catalog
+    <section id="catalog" className="container mx-auto my-0 pt-8 px-4 md:px-16">
+      <h2 className="text-2xl font-semibold pb-16">
+        <span className="animate-pulse">/ </span>Catalog
       </h2>
-      <div className="w-full flex flex-col items-center lg:flex-row gap-6 mx-auto">
+      <div className="flex flex-col items-center gap-6 lg:flex-row lg:justify-center">
         {products.map((product, index) => (
           <ProductCard
-            key={index}
+            key={product.id}
             index={index}
             title={product.title}
             imgSrc={product.imgSrc}
@@ -58,7 +60,7 @@ const Catalog = ({ selectedProduct, onProductClick }: CatalogProps) => {
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

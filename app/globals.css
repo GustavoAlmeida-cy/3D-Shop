@@ -2,16 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Scrollbar customizada para Webkit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-  display: none;
+  width: 8px; /* largura da scrollbar vertical */
+  height: 8px; /* altura da scrollbar horizontal */
 }
 
-.bg-gradient {
-  @apply bg-gradient-to-br from-rose-400 to-fuchsia-700;
+::-webkit-scrollbar-track {
+  background: rgba(
+    30,
+    30,
+    30,
+    0.6
+  ); /* fundo da track, escuro e semi-transparente */
+  border-radius: 10px;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    #f43f5e,
+    #a855f7
+  ); /* gradiente rosa para roxo */
+  border-radius: 10px;
+  border: 2px solid rgba(30, 30, 30, 0.6); /* borda para separar do fundo */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    #ef4444,
+    #c084fc
+  ); /* gradiente hover mais claro */
+}
+
+/* Scrollbar para Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #f43f5e #1e1e1e;
+}
+
+/* Opcional: classe para aplicar scrollbar personalizada apenas em alguns containers */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: #f43f5e #1e1e1e;
+}
+
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: rgba(30, 30, 30, 0.6);
+  border-radius: 10px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #f43f5e, #a855f7);
+  border-radius: 10px;
+  border: 2px solid rgba(30, 30, 30, 0.6);
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ef4444, #c084fc);
 }

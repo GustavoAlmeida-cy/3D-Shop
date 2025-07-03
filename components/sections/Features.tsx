@@ -3,9 +3,16 @@
 import React from "react";
 import { FaGamepad, FaHandRock } from "react-icons/fa";
 import { FaBolt, FaKeyboard } from "react-icons/fa6";
+import { IconType } from "react-icons";
 import FeatureCard from "@/components/ui/FeatureCard";
 
-const features = [
+type Feature = {
+  icon: IconType;
+  title: string;
+  description: string;
+};
+
+const features: Feature[] = [
   {
     icon: FaKeyboard,
     title: "Compact Design",
@@ -32,17 +39,20 @@ const features = [
   },
 ];
 
-const Features = () => {
+const Features: React.FC = () => {
   return (
-    <div id="features" className="max-w-5xl mx-auto pt-8">
-      <h2 className="text-2xl font-semibold pl-4 md:pl-16 pb-16">
-        <span className="animate-pulse">/ </span>
-        Features
+    <section
+      id="features"
+      className="container mx-auto my-32 pt-8 px-4 md:px-16"
+      aria-label="Features section"
+    >
+      <h2 className="text-2xl font-semibold pb-16">
+        <span className="animate-pulse">/ </span>Features
       </h2>
-      <div className="flex flex-wrap items-center justify-center gap-8 max-w-4xl mx-auto">
+      <div className="flex flex-wrap justify-center gap-8 max-w-4xl mx-auto">
         {features.map((feature, index) => (
           <FeatureCard
-            key={index}
+            key={feature.title}
             index={index}
             title={feature.title}
             icon={feature.icon}
@@ -50,7 +60,7 @@ const Features = () => {
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 
