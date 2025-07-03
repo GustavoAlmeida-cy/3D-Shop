@@ -18,12 +18,12 @@ const Products = () => {
   };
 
   return (
-    <div>
+    <div className="max-w-[1535px] flex flex-col mx-auto pt-8">
       <Catalog
         selectedProduct={selectedProduct}
         onProductClick={handleProductClick}
       />
-      <Preview />
+      <Preview selectedProduct={selectedProduct} />
     </div>
   );
 };
