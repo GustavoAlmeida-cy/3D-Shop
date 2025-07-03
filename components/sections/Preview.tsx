@@ -1,3 +1,4 @@
+import { object } from "framer-motion/client";
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
@@ -32,17 +33,29 @@ const Preview = () => {
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 
-    const cube = new THREE.Mesh(geometry, material);
+    for (let i = 0; i < 10; i++) {
+      const cube = new THREE.Mesh(geometry, material);
 
-    scene.add(cube);
+      cube.position.set(
+        (Math.random() - 0.5) * 10,
+        (Math.random() - 0.5) * 10,
+        (Math.random() - 0.5) * 10
+      );
+
+      scene.add(cube);
+    }
 
     camera.position.z = 6;
 
     renderer.setAnimationLoop(animate);
 
     function animate() {
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+      scene.traverse((object) => {
+        if (object instanceof THREE.Mesh) {
+          object.rotation.x += 0.01;
+          object.rotation.y += 0.01;
+        }
+      });
 
       renderer.render(scene, camera);
     }
