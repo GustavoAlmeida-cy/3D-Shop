@@ -15,6 +15,8 @@
 3D Shop é uma aplicação web moderna para exibir e vender teclados mecânicos com visualização interativa.  
 Construída com Next.js 14, React e TypeScript, utiliza Three.js para renderização 3D e Tailwind CSS para design responsivo e moderno.
 
+![Demonstração do Jogo](./public/images/demo.png)
+
 ---
 
 ## Funcionalidades Principais
