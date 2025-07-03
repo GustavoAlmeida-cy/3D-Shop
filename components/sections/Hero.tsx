@@ -5,29 +5,9 @@ import React, { useEffect } from "react";
 import { MdKeyboardDoubleArrowDown } from "react-icons/md";
 import TypingText from "@/components/ui/TypingText";
 import Image from "next/image";
+import ScrollButton from "../ui/ScrollButton";
 
 const Hero = () => {
-  useEffect(() => {
-    const handleScroll = () => {
-      const heroElement = document.getElementById("hero");
-      if (heroElement) {
-        const rect = heroElement.getBoundingClientRect();
-        const isInView = rect.top >= 84 && rect.bottom >= window.innerHeight;
-        document.body.style.overflow = isInView ? "hidden" : "auto";
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    handleScroll();
-
-    // Clean up the event listener on component unmount
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      document.body.style.overflow = "auto"; // Re-enable scroll on unmount
-    };
-  }, []);
-
   return (
     <div
       id="hero"
@@ -78,14 +58,7 @@ const Hero = () => {
         />
       </div>
 
-      <Link
-        href="#preview"
-        className="absolute bottom-24 left-1/2 transform -translate-x-1/2 flex flex-row items-top px-6 py-2 mx-auto mb-16 mt-auto border-[1px] border-slate-400 rounded-xl text-sm text-slate-400"
-      >
-        <MdKeyboardDoubleArrowDown className="w-4 h-4 mr-2 animate-ping" />
-        <span>click to scroll</span>
-        <MdKeyboardDoubleArrowDown className="w-4 h-4 ml-2 animate-ping" />
-      </Link>
+      <ScrollButton />
     </div>
   );
 };
